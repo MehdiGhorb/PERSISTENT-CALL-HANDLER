@@ -2,6 +2,7 @@
 Configuration for Persistent Call Handler
 """
 import os
+import sys
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -13,12 +14,12 @@ class Settings(BaseSettings):
     api_port: int = Field(default=8001, env="API_PORT")
     environment: str = Field(default="production", env="ENVIRONMENT")
     
-    # LiveKit Settings
+    # LiveKit Settings (required)
     livekit_api_key: str = Field(env="LIVEKIT_API_KEY")
     livekit_api_secret: str = Field(env="LIVEKIT_API_SECRET")
     livekit_url: str = Field(env="LIVEKIT_URL")
     
-    # AI Settings
+    # AI Settings (openai is required, others optional)
     openai_api_key: str = Field(env="OPENAI_API_KEY")
     cartesia_api_key: str = Field(default="", env="CARTESIA_API_KEY")
     deepgram_api_key: str = Field(default="", env="DEEPGRAM_API_KEY")
@@ -49,14 +50,36 @@ You are curious, friendly, and have a sense of humor.""",
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
     
     class Config:
-        env_file = ".env.local"
+        # Make .env.local optional - use environment variables in production
+        env_file = ".env.local" if os.path.exists(".env.local") else None
         case_sensitive = False
         extra = "ignore"
 
 _settings = None
 
 def get_settings() -> Settings:
+    """Get settings singleton with better error handling"""
     global _settings
     if _settings is None:
-        _settings = Settings()
+        try:
+            _settings = Settings()
+        except Exception as e:
+            print("\n" + "=" * 60)
+            print("❌ CONFIGURATION ERROR")
+            print("=" * 60)
+            print(f"\nError: {e}")
+            print("\nRequired environment variables:")
+            print("  - LIVEKIT_API_KEY")
+            print("  - LIVEKIT_API_SECRET")
+            print("  - LIVEKIT_URL")
+            print("  - OPENAI_API_KEY")
+            print("\nOptional environment variables:")
+            print("  - CARTESIA_API_KEY (for Cartesia TTS)")
+            print("  - DEEPGRAM_API_KEY (for Deepgram STT)")
+            print("\nIn Railway/Render:")
+            print("  Set these in the Environment Variables section")
+            print("\nFor local development:")
+            print("  Create .env.local file with these variables")
+            print("=" * 60 + "\n")
+            sys.exit(1)
     return _settings
