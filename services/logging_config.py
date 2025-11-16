@@ -1,0 +1,24 @@
+"""
+Logging configuration
+"""
+import logging
+import sys
+from typing import Optional
+
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None):
+    """Setup logging configuration"""
+    level = getattr(logging, log_level.upper(), logging.INFO)
+    
+    handlers = [logging.StreamHandler(sys.stdout)]
+    if log_file:
+        handlers.append(logging.FileHandler(log_file))
+    
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        handlers=handlers
+    )
+
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance"""
+    return logging.getLogger(name)
