@@ -2,10 +2,11 @@
 Persistent Call Handler - Main API Service
 Production-ready backend for always-on phone agents
 """
+import os
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import asyncio
 
 from config import get_settings
 from services.logging_config import setup_logging, get_logger
