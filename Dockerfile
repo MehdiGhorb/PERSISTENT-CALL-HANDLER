@@ -19,9 +19,8 @@ COPY . .
 RUN useradd -m -u 1000 agent && chown -R agent:agent /app
 USER agent
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8001/health').raise_for_status()" || exit 1
+# Expose port (Railway will override with PORT env var)
+EXPOSE 8001
 
 # Run the application
 CMD ["python", "main.py"]

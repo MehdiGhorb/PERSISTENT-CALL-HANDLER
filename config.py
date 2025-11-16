@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     
     # API Settings
     api_host: str = Field(default="0.0.0.0", env="API_HOST")
-    api_port: int = Field(default=8001, env="API_PORT")
+    # Railway uses PORT env var, fallback to API_PORT or 8001
+    api_port: int = Field(default=8001, env="PORT")
     environment: str = Field(default="production", env="ENVIRONMENT")
     
     # LiveKit Settings (required)
