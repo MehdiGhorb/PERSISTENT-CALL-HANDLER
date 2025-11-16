@@ -11,8 +11,9 @@ class Settings(BaseSettings):
     
     # API Settings
     api_host: str = Field(default="0.0.0.0", env="API_HOST")
-    # Railway uses PORT env var, fallback to API_PORT or 8001
-    api_port: int = Field(default=8001, env="PORT")
+    # Railway auto-detects port from EXPOSE in Dockerfile, but also supports PORT env var
+    # Try PORT first (Railway/Render standard), then API_PORT, then default to 8001
+    api_port: int = Field(default=int(os.getenv("PORT", os.getenv("API_PORT", "8001"))))
     environment: str = Field(default="production", env="ENVIRONMENT")
     
     # LiveKit Settings (required)

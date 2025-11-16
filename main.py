@@ -26,7 +26,10 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 PERSISTENT CALL HANDLER - STARTING")
     logger.info("=" * 60)
     logger.info(f"Environment: {settings.environment}")
-    logger.info(f"API: http://{settings.api_host}:{settings.api_port}")
+    logger.info(f"API Host: {settings.api_host}")
+    logger.info(f"API Port: {settings.api_port}")
+    logger.info(f"PORT env var: {os.getenv('PORT', 'not set')}")
+    logger.info(f"API URL: http://{settings.api_host}:{settings.api_port}")
     logger.info(f"Phone Numbers: {', '.join(settings.phone_numbers)}")
     
     # Initialize LiveKit
