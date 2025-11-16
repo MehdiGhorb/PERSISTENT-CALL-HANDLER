@@ -3,18 +3,20 @@ Configuration for Persistent Call Handler
 """
 import os
 import sys
-from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic import Field, AliasChoices
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Application settings"""
     
-    # API Settings
-    api_host: str = Field(default="0.0.0.0", env="API_HOST")
-    # Railway auto-detects port from EXPOSE in Dockerfile, but also supports PORT env var
-    # Try PORT first (Railway/Render standard), then API_PORT, then default to 8001
-    api_port: int = Field(default=int(os.getenv("PORT", os.getenv("API_PORT", "8001"))))
-    environment: str = Field(default="production", env="ENVIRONMENT")
+    # API Settings  
+    api_host: str = Field(default="0.0.0.0")
+    # Railway sets PORT, fallback to API_PORT, then default 8001
+    api_port: int = Field(
+        default=8001,
+        validation_alias=AliasChoices('PORT', 'API_PORT', 'api_port')
+    )
+    environment: str = Field(default="production")
     
     # LiveKit Settings (required)
     livekit_api_key: str = Field(env="LIVEKIT_API_KEY")
@@ -49,13 +51,15 @@ You are curious, friendly, and have a sense of humor.""",
     agent_startup_timeout: int = Field(default=60, env="AGENT_STARTUP_TIMEOUT")
     
     # Logging
-    log_level: str = Field(default="INFO", env="LOG_LEVEL")
+    log_level: str = Field(default="INFO")
     
-    class Config:
-        # Make .env.local optional - use environment variables in production
-        env_file = ".env.local" if os.path.exists(".env.local") else None
-        case_sensitive = False
-        extra = "ignore"
+    # Pydantic v2 configuration
+    model_config = SettingsConfigDict(
+        env_file=".env.local" if os.path.exists(".env.local") else None,
+        case_sensitive=False,
+        extra="ignore",
+        env_prefix=""
+    )
 
 _settings = None
 
